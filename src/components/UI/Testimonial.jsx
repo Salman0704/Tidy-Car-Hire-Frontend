@@ -36,7 +36,7 @@ const Testimonial = () => {
       }
     };
     fetchTestimonials()
-  },[])
+  })
   const settings = {
     dots: true,
     infinite: true,

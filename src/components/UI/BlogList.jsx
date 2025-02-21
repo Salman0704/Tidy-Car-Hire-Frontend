@@ -42,14 +42,14 @@ const BlogList = () => {
   return (
     <>
       {blogData.map((item) => (
-        <BlogItem item={item} key={item._id} />
+        <BlogItem item={item} key={item.id} />
       ))}
     </>
   );
 };
 
 const BlogItem = ({ item }) => {
-  const { image, title, author, date, description, time, _id } = item;
+  const { image, title, author, date, description, time, id } = item;
 
   return (
     <Col lg="4" md="6" sm="6" className="mb-5">
@@ -66,7 +66,7 @@ const BlogItem = ({ item }) => {
               : description}
           </p>
 
-          <Link to={`/blogs/${_id}`} className="read__more">
+          <Link to={`/blogs/${id}`} className="read__more">
             Read More
           </Link>
 

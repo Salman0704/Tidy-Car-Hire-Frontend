@@ -1,4 +1,4 @@
-import React,{useState, useEffect} from "react"
+import React,{useState} from "react"
 import {Form, FormGroup} from "reactstrap"
 
 import "../../styles/find-car-form.css";
@@ -47,12 +47,12 @@ const CommentForm=({id})=>{
             })
             // setCars(result.items); // Store car data in state
             // console.log(result)
-            console.log("API hit successfully");
-            // console.log(base)
+            setSuccessMesage("API hit successfully");
+            console.log(successMessage)
             setError(null);
           } else {
             setError("API is not working. Please try again.");
-            console.log("Something needs to be set up");
+            console.log(error);
             // setCars([]);
           }
         } catch (error) {

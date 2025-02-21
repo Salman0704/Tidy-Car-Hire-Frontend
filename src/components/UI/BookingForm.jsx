@@ -1,18 +1,23 @@
 import React, { useState, useEffect, useCallback } from "react";
 import "../../styles/booking-form.css";
 import { Form, FormGroup } from "reactstrap";
-import { useParams } from "react-router-dom";
+import { useNavigate , useParams } from "react-router-dom";
 import { environment } from "../../constant";
 
-const BookingForm = ({ setBooking, carItem }) => {
+const BookingForm = ({ setBooking, carItem, formData }) => {
   const { price: paramPrice } = useParams();
+  // const pickData=pickData
+  const pickData=formData.formData || {}
   const BASE_PRICE_PER_DAY = carItem.price || Number(paramPrice) || 0;
+  const navigate = useNavigate();
 
   const [bookingData, setBookingData] = useState({
     pickup_location: "",
     drop_location: "",
-    start_date: "",
-    end_date: "",
+    start_date: pickData.pickupDate || "",
+    end_date: pickData.dropoffDate  || "",
+    pickupTime: pickData.pickupTime,
+    dropoffTime:pickData.dropoffTime,
     car_id: carItem._id,
     car_category: carItem.carType,
     car_model: carItem.model,
@@ -26,6 +31,18 @@ const BookingForm = ({ setBooking, carItem }) => {
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState("");
   const [existingBookings, setExistingBookings] = useState([]);
+
+
+    // Update start_date and end_date when pickData changes
+    useEffect(() => {
+      if (pickData) {
+        setBookingData((prev) => ({
+          ...prev,
+          start_date: pickData.pickupDate,
+          end_date: pickData.dropoffDate,
+        }));
+      }
+    }, [pickData]);
 
   // Fetch existing bookings for this car
   useEffect(() => {
@@ -71,6 +88,27 @@ const BookingForm = ({ setBooking, carItem }) => {
     [BASE_PRICE_PER_DAY]
   );
 
+
+  //  // Calculate days and price whenever dates change
+  //  useEffect(() => {
+  //   if (pickData) {
+  //     console.log(pickData.dropoffDate)
+  //     console.log(pickData.pickupDate)
+
+  //     const days = Math.ceil(
+  //       (new Date(pickData.dropoffDate) - new Date(pickData.pickupDate)) / 
+  //       (1000 * 60 * 60 * 24)
+  //     );
+      
+  //     setBookingData(prev => ({
+  //       ...prev,
+  //       start_date: pickData.pickupDate,
+  //       end_date: pickData.dropoffDate,
+  //       price: BASE_PRICE_PER_DAY * days
+  //     }));
+  //   }
+  // }, [pickData, BASE_PRICE_PER_DAY]);
+
   // Update price when dates or car category changes
   useEffect(() => {
     const days = calculateDays(bookingData.start_date, bookingData.end_date);
@@ -93,7 +131,7 @@ const BookingForm = ({ setBooking, carItem }) => {
       let bookedEnd = new Date(booking.end_date);
       // Check for overlap
       if (startDate <= bookedEnd && endDate >= bookedStart) {
-        return true;
+        return false; // change it to true when you want to restrict the booked dates
       }
     }
     return false;
@@ -122,61 +160,76 @@ const BookingForm = ({ setBooking, carItem }) => {
     if (error) {
       return;
     }
-    const apiUrl = environment.base + "/booking/add";
-    try {
-      const response = await fetch(apiUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(bookingData),
-      });
+    navigate("/booking/navigation",{ state: bookingData });
+    // const apiUrl = environment.base + "/booking/add";
+    // try {
+    //   const response = await fetch(apiUrl, {
+    //     method: "POST",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify(bookingData),
+    //   });
 
-      const result = await response.json();
-      if (result.subCode === 200) {
-        // Optionally send email after booking is added
-        const emailResponse = await fetch(environment.base + "/email/send", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(result.items),
-        });
-        const emailResult = await emailResponse.json();
-        if (emailResult.subCode === 200) {
-          console.log(result.items);
-          setError(null);
-          setBookingData({
-            pickup_location: "",
-            drop_location: "",
-            start_date: "",
-            end_date: "",
-            car_category: carItem.carType,
-            car_model: carItem.model,
-            car_name: carItem.carName,
-            car_brand: carItem.brand,
-            user_email: "",
-            user_name: "",
-            price: BASE_PRICE_PER_DAY,
-            user_phone: "",
-          });
-          setSuccessMessage(
-            "Thanks for Booking! Your request has been successfully submitted."
-          );
-        } else {
-          setError("Booking has been updated in DB but email is not sent");
-        }
-      } else {
-        setError("API is not working. Please try again.");
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      setError("An error occurred while connecting to the API.");
-    }
+    //   const result = await response.json();
+    //   if (result.subCode === 200) {
+    //     // Optionally send email after booking is added
+    //     const emailResponse = await fetch(environment.base + "/email/send", {
+    //       method: "POST",
+    //       headers: {
+    //         "Content-Type": "application/json",
+    //       },
+    //       body: JSON.stringify(result.items),
+    //     });
+    //     const emailResult = await emailResponse.json();
+    //     if (emailResult.subCode === 200) {
+    //       // console.log(result.items);
+    //       setError(null);
+    //       setBookingData({
+    //         pickup_location: "",
+    //         drop_location: "",
+    //         start_date: pickData.pickupDate,
+    //         end_date: pickData.dropoffDate,
+    //         car_category: carItem.carType,
+    //         car_model: carItem.model,
+    //         car_name: carItem.carName,
+    //         car_brand: carItem.brand,
+    //         user_email: "",
+    //         user_name: "",
+    //         price: BASE_PRICE_PER_DAY,
+    //         user_phone: "",
+    //       });
+          
+    //       setSuccessMessage(
+    //         "Thanks for Booking! Your request has been successfully submitted."
+    //       );
+    //       navigate("/booking/navigation",{ state: result.items });
+          
+    //     } else {
+    //       setError("Booking has been updated in DB but email is not sent");
+    //     }
+    //   } else {
+    //     setError("API is not working. Please try again.");
+    //   }
+    // } catch (error) {
+    //   console.error("Error fetching data:", error);
+    //   setError("An error occurred while connecting to the API.");
+    // }
   };
 
   // Apply a red border style if there is an overlap error.
   const dateInputStyle = error ? { border: "2px solid red" } : {};
+
+// Date formatting function
+const formatDate = (dateString) => {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  return date.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric"
+  });
+};
 
   return (
     <Form onSubmit={submitHandler}>
@@ -208,6 +261,20 @@ const BookingForm = ({ setBooking, carItem }) => {
         </select>
       </FormGroup>
 
+
+      {/* Display Dates Read-Only
+      <FormGroup className="booking__form d-inline-block me-4 mb-4">
+        <label>Booking Period</label>
+        <div className="date-display">
+          {formatDate(bookingData.start_date)} - {formatDate(bookingData.end_date)}
+        </div>
+        <div className="price-summary">
+          {Math.ceil(
+            (new Date(bookingData.end_date) - new Date(bookingData.start_date)) / 
+            (1000 * 60 * 60 * 24)
+          )} days × £{BASE_PRICE_PER_DAY}/day = £{bookingData.price}
+        </div>
+      </FormGroup> */}
       <FormGroup className="booking__form d-inline-block me-4 mb-4">
         <label>Start Date</label>
         <input
@@ -219,6 +286,7 @@ const BookingForm = ({ setBooking, carItem }) => {
           min={new Date().toISOString().split("T")[0]} // Prevent past dates
           style={dateInputStyle}
         />
+        {/* <p>Readable Start Date: {formatDate(bookingData.start_date)}</p> */}
       </FormGroup>
 
       <FormGroup className="booking__form d-inline-block me-4 mb-4">
@@ -232,6 +300,7 @@ const BookingForm = ({ setBooking, carItem }) => {
           min={bookingData.start_date || new Date().toISOString().split("T")[0]}
           style={dateInputStyle}
         />
+          {/* <p>Readable End Date: {formatDate(bookingData.end_date)}</p> */}
       </FormGroup>
 
       {/* Display overlap error message below the date fields */}
@@ -304,7 +373,7 @@ const BookingForm = ({ setBooking, carItem }) => {
 
       <FormGroup className="booking__form d-inline-block me-4 mb-4">
         <button type="submit" className="btn find__car-btn" disabled={!!error}>
-          Submit Booking
+          Proceed
         </button>
       </FormGroup>
     </Form>

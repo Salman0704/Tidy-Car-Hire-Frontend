@@ -83,10 +83,10 @@ const BlogDetails = () => {
               </div>
 
               <div className="comment__list mt-5">
-              <h4 className="mb-5">Comments ({blog.comments?.length || 0})</h4>
+              <h4 className="mb-5">Comments ({blog.Comments?.length || 0})</h4>
 
-{blog.comments && blog.comments.length > 0 ? (
-  blog.comments.map((comment, index) => (
+{blog.Comments && blog.Comments.length > 0 ? (
+  blog.Comments.map((comment, index) => (
     <div key={index} className="single__comment d-flex gap-3 mb-4">
       <div className="comment__content">
         <h6 className="fw-bold">{comment.fullName}</h6>
@@ -123,7 +123,7 @@ const BlogDetails = () => {
                   <p className="section__description">
                     
                   </p>
-                  < CommentForm id={blog._id}/>
+                  < CommentForm id={blog.id}/>
 
                   
                 </div>

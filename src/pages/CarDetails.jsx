@@ -5,11 +5,20 @@ import { Container, Row, Col } from "reactstrap";
 import Helmet from "../components/Helmet/Helmet";
 import { useParams } from "react-router-dom";
 import BookingForm from "../components/UI/BookingForm";
-import PaymentMethod from "../components/UI/PaymentMethod";
+// import PaymentMethod from "../components/UI/PaymentMethod";
 import { environment } from "../constant";
+import { useLocation } from "react-router-dom";
+// import { Elements } from "@stripe/react-stripe-js";
+// import { loadStripe } from "@stripe/stripe-js";
+// import PaymentMethod from "./components/PaymentMethod"; // adjust path as needed
+// const stripePromise = loadStripe(environment.stripe_publishable_key);
 
 const CarDetails = () => {
 const { slug } = useParams();
+const location= useLocation();
+const formData= location.state || {}
+// console.log(formData)
+console.log(slug)
 
   // const singleCarItem = carData.find((item) => item.carName === slug);
   const [singleCarItem, setSingleCarItem] = useState([]); // State to store car data
@@ -23,7 +32,7 @@ const { slug } = useParams();
           throw new Error("Failed to fetch car data");
         }
         const data = await response.json();
-        // console.log(data)
+        console.log(data)
         setSingleCarItem(data.items); // Update state with fetched data
       } catch (error) {
         setError(error.message); // Set error message if something goes wrong
@@ -140,7 +149,7 @@ const { slug } = useParams();
             <Col lg="7" className="mt-5">
               <div className="booking-info mt-5">
                 <h5 className="mb-4 fw-bold ">Rent Now</h5>
-                <BookingForm carItem={singleCarItem} />
+                <BookingForm formData={formData} carItem={singleCarItem} />
                 {/* <Link to={`/booking/${singleCarItem.price}`}>Rent</Link> */}
                 {/* <button className=" w-50 car__item-btn car__btn-rent">
                             <Link to={`/booking/${singleCarItem.price}`}>Rent</Link>
@@ -149,12 +158,14 @@ const { slug } = useParams();
               </div>
             </Col>
 
-            <Col lg="5" className="mt-5">
+            {/* <Col lg="5" className="mt-5">
               <div className="payment__info mt-5">
                 <h5 className="mb-4 fw-bold ">Payment Information</h5>
+                <Elements stripe={stripePromise}>
                 <PaymentMethod />
+                </Elements> 
               </div>
-            </Col>
+            </Col> */}
           </Row>
         </Container>
       </section>

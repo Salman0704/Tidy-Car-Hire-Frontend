@@ -51,11 +51,10 @@ const Footer = () => {
       setMessage("Please enter a valid email address.");
       return;
     }
-
-    setLoading(true);
-    setMessage("");
-
-    try {
+    else{
+      setLoading(true);
+      setMessage("");
+       try {
       const response = await fetch(environment.base+"/contactUs/newsletter", {
         method: "POST",
         headers: {
@@ -66,17 +65,24 @@ const Footer = () => {
 
       if (response.json().item.subCode!==200) {
         throw new Error("Failed to subscribe");
+      }else{
+        console.log("hii")
+        setMessage("Subscription successful! Thank you.");
+      console.log(message)
+      setEmail(""); // Clear the input field
       }
 
       // const data = await response.json();
-      setMessage("Subscription successful! Thank you.");
-      console.log(message)
-      setEmail(""); // Clear the input field
+      
     } catch (error) {
       setMessage("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
+    }
+    
+    
+   
   };
 
   const date = new Date();
@@ -132,16 +138,25 @@ const Footer = () => {
               <h5 className="footer__link-title">Newsletter</h5>
               <p className="section__description">Subscribe our newsletter</p>
               <div className="newsletter">
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={handleInputChange}
-        disabled={loading} // Disable input while loading
-      />
-      <span onClick={handleSubmit} style={{ cursor: "pointer" }}>
-        <i className="ri-send-plane-line"></i>
-      </span>
+              <form onSubmit={handleSubmit}>
+              <input
+                type="email"
+                name="email" // Add a name attribute
+                placeholder="Email"
+                value={email}
+                onChange={handleInputChange}
+                disabled={loading} // Disable input while loading
+                aria-label="Email input" // Improve accessibility
+              />
+              <button
+                type="submit" // Use a button for better semantics
+                disabled={loading} // Disable button while loading
+                style={{ cursor: "pointer", background: "none", border: "none", padding: 0 }} // Style as needed
+                aria-label="" // Improve accessibility
+              >
+                <i className="ri-send-plane-line"></i>
+              </button>
+</form>
       {/* {message && <p>{message}</p>} */}
     </div>
             </div>

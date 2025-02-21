@@ -3,9 +3,26 @@ import { Col } from "reactstrap";
 import { Link } from "react-router-dom";
 import "../../styles/car-item.css";
 // import BookingForm from "./BookingForm";
+import { useNavigate } from "react-router-dom";
 
 const CarItem = (props) => {
-  const { imgUrl, model, carName, automatic, speed, price, _id } = props.item;
+  const navigate= useNavigate();
+  // console.log(props.item)
+  const { imgUrl, model, carName, automatic, speed, price, _id } = props.item || {};
+  // console.log(props.item)
+  const formData= props.formData || {}
+  // console.log(formData)
+
+
+  const handleDetailsClick = () => {
+    // Navigate to the details page with car details and formData
+    navigate(`/cars/${_id}`, {
+      state: {
+
+        formData: formData, // Pass form data
+      },
+    });
+  };
 
   return (
     <Col lg="4" md="4" sm="6" className="mb-5">
@@ -36,8 +53,10 @@ const CarItem = (props) => {
             <Link to={`/booking/${price}`}>Rent</Link>
           </button> */}
 
-          <button className=" w-50 car__item-btn car__btn-details">
-            <Link to={`/cars/${_id}`}>Details</Link>
+          <button className=" w-50 car__item-btn car__btn-details"  onClick={handleDetailsClick}>
+            Details
+            {/* <Link to={`/cars/${_id}`}>Details</Link> */}
+            {/* {navigate(`/cars/${_id}`, {state:{formData}})} */}
           </button>
         </div>
       </div>

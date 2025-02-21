@@ -6,24 +6,38 @@ import CarItem from "../components/UI/CarItem";
 // import carData from "../assets/data/carData";
 // import carData from "../assets/data/carData";
 import { environment } from "../constant";
+import { useLocation } from "react-router-dom";
 
 
 const CarListing = () => {
   const [carData, setCarData] = useState([]); // State to store car data
   const [loading, setLoading] = useState(true); // State to handle loading state
   const [error, setError] = useState(null); // State to handle errors
+  const location=useLocation();
+  const {formData}=location.state|| {}
 
   // Fetch car data from the API
   useEffect(() => {
     const fetchCarData = async () => {
       try {
-        const response = await fetch(environment.base+"/services/getCarByStatus"); // Replace with your API endpoint
-        if (!response.ok) {
-          throw new Error("Failed to fetch car data");
+        let response
+        if(formData){
+          response = await fetch(environment.base+`/services/getCarByCategory/${formData.vehicleType}`); // Replace with your API endpoint
+        }else{
+          response=await fetch(environment.base+`/services/getCarByStatus`);
         }
+        // console.log(response)
         const data = await response.json();
+        if (data.subCode!==200) {
+          setCarData(null)
+          throw new Error("Failed to fetch car data");
+          
+        }else{
+          
         // console.log(data.items)
         setCarData(data.items); // Update state with fetched data
+        }
+        
       } catch (error) {
         setError(error.message); // Set error message if something goes wrong
       } finally {
@@ -32,7 +46,7 @@ const CarListing = () => {
     };
 
     fetchCarData();
-  }, []); // Empty dependency array ensures this runs only once on mount
+  }, [formData]); // Empty dependency array ensures this runs only once on mount
 
   // Display loading state
   if (loading) {
@@ -65,7 +79,7 @@ const CarListing = () => {
             </Col>
 
             {carData.map((item) => (
-              <CarItem item={item} key={item._id} />
+              <CarItem item={item} formData={formData} key={item._id} />
             ))}
           </Row>
         </Container>
